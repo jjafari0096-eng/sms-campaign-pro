@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Campaign Manager Pro</string>
+    <string name="sending_sms_notification">Sending messages in background</string>
+    <string name="sms_service_channel_name">SMS Sender Service</string>
+    <string name="sms_service_channel_description">Running SMS campaign in background</string>
+    
+    <!-- Permissions -->
+    <string name="permission_sms_required">SMS permissions are required to send messages</string>
+    <string name="permission_storage_required">Storage permissions required for Excel import/export</string>
+    <string name="permission_phone_required">Phone permissions required for SMS functionality</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="total_campaigns">Total Campaigns</string>
+    <string name="active_campaigns">Active Campaigns</string>
+    <string name="total_contacts">Total Contacts</string>
+    <string name="messages_sent_today">Messages Sent Today</string>
+    
+    <!-- Campaigns -->
+    <string name="campaigns_title">Campaigns</string>
+    <string name="new_campaign">New Campaign</string>
+    <string name="campaign_draft">Draft</string>
+    <string name="campaign_scheduled">Scheduled</string>
+    <string name="campaign_running">Running</string>
+    <string name="campaign_paused">Paused</string>
+    <string name="campaign_completed">Completed</string>
+    <string name="campaign_failed">Failed</string>
+    
+    <!-- Contacts -->
+    <string name="contacts_title">Contacts</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="import_contacts">Import from Excel</string>
+    <string name="export_contacts">Export to Excel</string>
+    <string name="search_contacts">Search contacts...</string>
+    
+    <!-- Templates -->
+    <string name="templates_title">Message Templates</string>
+    <string name="new_template">New Template</string>
+    
+    <!-- Scheduling -->
+    <string name="scheduling_title">Scheduling Center</string>
+    <string name="schedule_campaign">Schedule Campaign</string>
+    <string name="immediate_start">Start immediately</string>
+    <string name="schedule_later">Schedule for later</string>
+    
+    <!-- Reports -->
+    <string name="reports_title">Reports</string>
+    <string name="export_report">Export Report</string>
+    <string name="campaign_metrics">Campaign Metrics</string>
+    <string name="success_rate">Success Rate</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="daily_sms_limit">Daily SMS Limit</string>
+    <string name="resume_on_reboot">Resume on Reboot</string>
+    <string name="language_preference">Language</string>
+    
+    <!-- Notifications -->
+    <string name="notifications_title">Notification Center</string>
+    <string name="mark_all_read">Mark all as read</string>
+    
+    <!-- Help & Support -->
+    <string name="help_support_title">Help & Support</string>
+    <string name="faq_title">Frequently Asked Questions</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="app_version">App Version</string>
+    
+    <!-- Excel Import -->
+    <string name="import_progress">Importing contacts...</string>
+    <string name="import_complete">Import complete. %d contacts added, %d duplicates found, %d invalid numbers</string>
+    
+    <!-- Common -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+</resources>
