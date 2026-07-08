@@ -31,15 +31,37 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build APK
-      run: ./gradlew clean assembleDebug --stacktrace --info
+    - name: Create debug keystore if no release keystore is provided
+      run: |
+        if [ -z "${{ secrets.KEYSTORE_FILE }}" ]; then
+          echo "No release keystore found, creating debug keystore for CI build"
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          export KEYSTORE_FILE="debug.keystore"
+          export KEYSTORE_PASSWORD="android"
+          export KEY_ALIAS="androiddebugkey"
+          export KEY_PASSWORD="android"
+        fi
       
-    - name: Find all APK files
-      run: find . -type f -name "*.apk" -exec ls -la {} \;
+    - name: Build release APK and AAB
+      run: ./gradlew clean assembleRelease bundleRelease --stacktrace --info
+      env:
+        KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE || 'debug.keystore' }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'android' }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'androiddebugkey' }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'android' }}
       
-    - name: Upload APKs
+    - name: Find all generated artifacts (APK + AAB)
+      run: |
+        echo "=== Found APK files ==="
+        find . -type f -name "*.apk" -exec ls -la {} \;
+        echo -e "\n=== Found AAB files ==="
+        find . -type f -name "*.aab" -exec ls -la {} \;
+      
+    - name: Upload all release artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: android-apks
-        path: "**/*.apk"
-        retention-days: 30
+        name: sms-campaign-pro-release-artifacts
+        path: |
+          **/*.apk
+          **/*.aab
+        retention-days: 90

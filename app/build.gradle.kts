@@ -22,11 +22,24 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = System.getenv("KEYSTORE_FILE")?.let { file(it) }
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+            // Fallback to debug signing if no release keystore is available (for CI testing)
+            if (storeFile == null || !storeFile!!.exists()) {
+                storeFile = file("${rootProject.projectDir}/debug.keystore")
+            }
+        }
+    }
     buildTypes {
         debug {
             // Default debug signing is automatically applied
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
