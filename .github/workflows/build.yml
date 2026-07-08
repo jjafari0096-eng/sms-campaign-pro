@@ -13,11 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.4'
-        
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -28,53 +23,33 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.4'
+      
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build debug APK (guaranteed to work with default Android signing)
-      run: |
-        set -e  # Strict error handling - exit on any failure
-        echo "=== Starting Gradle debug build ==="
-        ./gradlew clean assembleDebug --stacktrace --info
-        echo -e "\n=== Build SUCCESSFUL, checking if app/build exists ==="
-        if [ ! -d "app/build" ]; then
-          echo "❌ CRITICAL ERROR: app/build directory does not exist after build!"
-          exit 1
-        fi
-        ls -la app/build
-        if [ ! -d "app/build/outputs" ]; then
-          echo "❌ CRITICAL ERROR: app/build/outputs directory does not exist!"
-          exit 1
-        fi
-        ls -la app/build/outputs
+    - name: Build debug APK
+      run: ./gradlew clean assembleDebug --stacktrace
       
-    - name: Comprehensive artifact diagnostics
+    - name: Verify APK exists
       run: |
-        echo "=== Current working directory ==="
-        pwd && ls -la
-        
-        echo -e "\n=== Search entire repository for APK and AAB files ==="
-        echo "Running: find . \( -name \"*.apk\" -o -name \"*.aab\" \) -type f"
-        ARTIFACTS=$(find . \( -name "*.apk" -o -name "*.aab" \) -type f)
-        if [ -z "$ARTIFACTS" ]; then
-          echo -e "\n⚠️ No APK/AAB files found! Listing all app/build contents:"
-          if [ -d "app/build" ]; then
-            ls -laR app/build
-          else
-            echo "❌ app/build directory doesn't exist at all!"
-            ls -la .
-          fi
+        APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+        if [ ! -f "$APK_PATH" ]; then
+          echo "❌ APK not found at $APK_PATH"
+          echo "Listing all build outputs:"
+          ls -laR app/build
           exit 1
-        else
-          echo -e "\n✅ Found the following artifacts:"
-          echo "$ARTIFACTS"
-          echo -e "\n📊 Count: $(echo "$ARTIFACTS" | wc -l) artifact(s)"
         fi
+        echo "✅ APK successfully built: $APK_PATH"
+        ls -la "$APK_PATH"
       
-    - name: Upload debug APK artifact
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: sms-campaign-pro-debug-apk
+        name: sms-campaign-pro-debug.apk
         path: app/build/outputs/apk/debug/app-debug.apk
-        retention-days: 90
+        retention-days: 30
         if-no-files-found: error
