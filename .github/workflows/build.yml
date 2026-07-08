@@ -42,17 +42,22 @@ jobs:
           export KEY_PASSWORD="android"
         fi
       
-    - name: Build release APK and AAB
+    - name: Build debug APK (guaranteed to work with default Android signing)
       run: |
-        ./gradlew clean assembleRelease bundleRelease --stacktrace --info
-        echo -e "\n=== Build completed, checking if app/build exists ==="
-        ls -la app/build || echo "app/build directory listing failed"
-        ls -la app/build/outputs || echo "outputs directory listing failed"
-      env:
-        KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE || 'debug.keystore' }}
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'android' }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'androiddebugkey' }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'android' }}
+        set -e  # Strict error handling - exit on any failure
+        echo "=== Starting Gradle debug build ==="
+        ./gradlew clean assembleDebug --stacktrace --info
+        echo -e "\n=== Build SUCCESSFUL, checking if app/build exists ==="
+        if [ ! -d "app/build" ]; then
+          echo "❌ CRITICAL ERROR: app/build directory does not exist after build!"
+          exit 1
+        fi
+        ls -la app/build
+        if [ ! -d "app/build/outputs" ]; then
+          echo "❌ CRITICAL ERROR: app/build/outputs directory does not exist!"
+          exit 1
+        fi
+        ls -la app/build/outputs
       
     - name: Comprehensive artifact diagnostics
       run: |
@@ -77,10 +82,10 @@ jobs:
           echo -e "\n📊 Count: $(echo "$ARTIFACTS" | wc -l) artifact(s)"
         fi
       
-    - name: Upload all release artifacts
+    - name: Upload debug APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: sms-campaign-pro-release-artifacts
-        path: app/build/outputs/**/*
+        name: sms-campaign-pro-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 90
         if-no-files-found: error
