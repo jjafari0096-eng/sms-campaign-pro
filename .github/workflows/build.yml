@@ -34,12 +34,12 @@ jobs:
     - name: Build APK
       run: ./gradlew clean assembleDebug --stacktrace --info
       
-    - name: List build outputs
-      run: find app/build -type f -name "*.apk" || echo "No APK files found, listing all build files:" && ls -laR app/build
+    - name: Find all APK files
+      run: find . -type f -name "*.apk" -exec ls -la {} \;
       
-    - name: Upload APK
+    - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug.apk
-        path: app/build/outputs/apk/debug/*.apk
+        name: android-apks
+        path: "**/*.apk"
         retention-days: 30
