@@ -24,22 +24,31 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = System.getenv("KEYSTORE_FILE")?.let { file(it) }
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
-            // Fallback to debug signing if no release keystore is available (for CI testing)
-            if (storeFile == null || !storeFile!!.exists()) {
-                storeFile = file("${rootProject.projectDir}/debug.keystore")
+            // Only apply release signing if all environment variables are present
+            val keystoreFile = System.getenv("KEYSTORE_FILE")
+            val keystorePass = System.getenv("KEYSTORE_PASSWORD")
+            val keyAlias = System.getenv("KEY_ALIAS")
+            val keyPass = System.getenv("KEY_PASSWORD")
+            if (keystoreFile != null && keystorePass != null && keyAlias != null && keyPass != null) {
+                storeFile = file(keystoreFile)
+                storePassword = keystorePass
+                keyAlias = keyAlias
+                keyPassword = keyPass
             }
         }
     }
     buildTypes {
         debug {
-            // Default debug signing is automatically applied
+            // Android automatically uses default debug signing - no configuration needed
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // Only use release signing if it was properly configured
+            if (signingConfigs.findByName("release")?.storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Fallback to debug signing for CI if no release keystore is available
+                signingConfig = signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
