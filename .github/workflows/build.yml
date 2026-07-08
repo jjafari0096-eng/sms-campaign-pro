@@ -43,25 +43,44 @@ jobs:
         fi
       
     - name: Build release APK and AAB
-      run: ./gradlew clean assembleRelease bundleRelease --stacktrace --info
+      run: |
+        ./gradlew clean assembleRelease bundleRelease --stacktrace --info
+        echo -e "\n=== Build completed, checking if app/build exists ==="
+        ls -la app/build || echo "app/build directory listing failed"
+        ls -la app/build/outputs || echo "outputs directory listing failed"
       env:
         KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE || 'debug.keystore' }}
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'android' }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'androiddebugkey' }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'android' }}
       
-    - name: Find all generated artifacts (APK + AAB)
+    - name: Comprehensive artifact diagnostics
       run: |
-        echo "=== Found APK files ==="
-        find . -type f -name "*.apk" -exec ls -la {} \;
-        echo -e "\n=== Found AAB files ==="
-        find . -type f -name "*.aab" -exec ls -la {} \;
+        echo "=== Current working directory ==="
+        pwd && ls -la
+        
+        echo -e "\n=== Search entire repository for APK and AAB files ==="
+        echo "Running: find . \( -name \"*.apk\" -o -name \"*.aab\" \) -type f"
+        ARTIFACTS=$(find . \( -name "*.apk" -o -name "*.aab" \) -type f)
+        if [ -z "$ARTIFACTS" ]; then
+          echo -e "\n⚠️ No APK/AAB files found! Listing all app/build contents:"
+          if [ -d "app/build" ]; then
+            ls -laR app/build
+          else
+            echo "❌ app/build directory doesn't exist at all!"
+            ls -la .
+          fi
+          exit 1
+        else
+          echo -e "\n✅ Found the following artifacts:"
+          echo "$ARTIFACTS"
+          echo -e "\n📊 Count: $(echo "$ARTIFACTS" | wc -l) artifact(s)"
+        fi
       
     - name: Upload all release artifacts
       uses: actions/upload-artifact@v4
       with:
         name: sms-campaign-pro-release-artifacts
-        path: |
-          **/*.apk
-          **/*.aab
+        path: app/build/outputs/**/*
         retention-days: 90
+        if-no-files-found: error
