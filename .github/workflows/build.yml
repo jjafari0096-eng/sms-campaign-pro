@@ -26,16 +26,21 @@ jobs:
     - name: Grant execute permission to gradlew
       run: chmod +x gradlew
 
+    - name: List available Gradle tasks (diagnostic)
+      run: ./gradlew tasks --all
+
     - name: Build Android App APK
-      run: ./gradlew clean :app:assembleDebug --stacktrace
+      run: ./gradlew clean :app:assembleDebug --stacktrace --info
 
     - name: Verify and locate APK
       run: |
-        find . -type f -name "*.apk"
+        echo "=== Searching for all APK files ==="
+        find . -type f -name "*.apk" -ls
+        echo -e "\n=== Checking app directory structure ==="
+        ls -laR app/
         APK_COUNT=$(find . -type f -name "*.apk" | wc -l)
         if [ "$APK_COUNT" -eq 0 ]; then
           echo "❌ No APK files found! Build failed to generate output."
-          ls -laR app/ 2>/dev/null || echo "app/ directory doesn't exist"
           exit 1
         fi
         echo "✅ Found $APK_COUNT APK file(s)"
@@ -44,6 +49,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: android-app-debug.apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: "**/app-debug.apk"
         retention-days: 30
         if-no-files-found: error
