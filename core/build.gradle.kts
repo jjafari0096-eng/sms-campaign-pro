@@ -1,14 +1,15 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
-    id("androidx.room")
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.room)
 }
 
 android {
     namespace = "com.example.core"
-    compileSdk = 34
+    compileSdk = 33
+    buildToolsVersion = "33.0.2"
 
     defaultConfig {
         minSdk = 24

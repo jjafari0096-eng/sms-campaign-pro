@@ -1,18 +1,19 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kapt)
 }
 
 android {
     namespace = "com.example.smscampaignpro"
-    compileSdk = 34
+    compileSdk = 33
+    buildToolsVersion = "33.0.2"
 
     defaultConfig {
         applicationId = "com.example.smscampaignpro"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -27,12 +28,12 @@ android {
             // Only apply release signing if all environment variables are present
             val keystoreFile = System.getenv("KEYSTORE_FILE")
             val keystorePass = System.getenv("KEYSTORE_PASSWORD")
-            val keyAlias = System.getenv("KEY_ALIAS")
+            val envKeyAlias = System.getenv("KEY_ALIAS")
             val keyPass = System.getenv("KEY_PASSWORD")
-            if (keystoreFile != null && keystorePass != null && keyAlias != null && keyPass != null) {
+            if (keystoreFile != null && keystorePass != null && envKeyAlias != null && keyPass != null) {
                 storeFile = file(keystoreFile)
                 storePassword = keystorePass
-                keyAlias = keyAlias
+                keyAlias = envKeyAlias
                 keyPassword = keyPass
             }
         }
