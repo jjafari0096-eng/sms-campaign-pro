@@ -10,55 +10,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: 'gradle'
-        
+
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.4'
-      
-    - name: Grant execute permission for gradlew
+
+    - name: Grant execute permission to gradlew
       run: chmod +x gradlew
-      
-    - name: List project structure before build
+
+    - name: Build Android App APK
+      run: ./gradlew clean :app:assembleDebug --stacktrace
+
+    - name: Verify and locate APK
       run: |
-        echo "=== Project root files ==="
-        ls -la
-        echo -e "\n=== Gradle wrapper exists? ==="
-        ls -la gradlew
-        echo -e "\n=== All modules ==="
-        ls -la */
-        
-    - name: Build debug APK (explicit app module)
-      run: ./gradlew clean :app:assembleDebug --stacktrace --info
-      
-    - name: Find all APK files and verify build output
-      run: |
-        echo "=== Searching for all APK files in project ==="
-        find . -type f -name "*.apk" -print0 | xargs -0 ls -la
-        echo -e "\n=== Complete build directory structure ==="
-        if [ -d "app/build" ]; then
-          ls -laR app/build
-        else
-          echo "❌ app/build directory does NOT exist!"
+        find . -type f -name "*.apk"
+        APK_COUNT=$(find . -type f -name "*.apk" | wc -l)
+        if [ "$APK_COUNT" -eq 0 ]; then
+          echo "❌ No APK files found! Build failed to generate output."
+          ls -laR app/ 2>/dev/null || echo "app/ directory doesn't exist"
           exit 1
         fi
-      
-    - name: Upload all APK artifacts
+        echo "✅ Found $APK_COUNT APK file(s)"
+
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: sms-campaign-pro-apks
-        path: "**/*.apk"
+        name: android-app-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         if-no-files-found: error
