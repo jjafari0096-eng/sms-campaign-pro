@@ -12,10 +12,3 @@ buildscript {
         classpath("androidx.room:room-gradle-plugin:2.6.1")
     }
 }
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
